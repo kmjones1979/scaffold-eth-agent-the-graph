@@ -2,6 +2,7 @@ import { contractInteractor } from "./agentkit/action-providers/contract-interac
 import { agentKitToTools } from "./agentkit/framework-extensions/ai-sdk";
 import { AgentKit, ViemWalletProvider, walletActionProvider } from "@coinbase/agentkit";
 import { tool } from "ai";
+import fetch from "node-fetch";
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { foundry } from "viem/chains";
@@ -41,3 +42,60 @@ export function getTools(agentKit: AgentKit) {
     }),
   };
 }
+
+export const querySubgraph = {
+  name: "querySubgraph",
+  description: "Query a subgraph using GraphQL",
+  parameters: {
+    type: "object",
+    properties: {
+      endpoint: {
+        type: "string",
+        description: "The subgraph endpoint URL",
+      },
+      query: {
+        type: "string",
+        description: "The GraphQL query string",
+      },
+      variables: {
+        type: "object",
+        description: "Optional variables for the GraphQL query",
+      },
+    },
+    required: ["endpoint", "query"],
+  },
+  async handler({
+    endpoint,
+    query,
+    variables = {},
+  }: {
+    endpoint: string;
+    query: string;
+    variables?: Record<string, any>;
+  }) {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query,
+          variables,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error: error.message };
+      }
+      return { error: "An unknown error occurred" };
+    }
+  },
+};

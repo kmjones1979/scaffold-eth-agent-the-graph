@@ -28,6 +28,32 @@ export async function POST(req: Request) {
   ${JSON.stringify(deployedContracts, null, 2)}
   You have some other tools that you can use to help the user.
   The chat app has a built-in block explorer so you can link to (for example) /blockexplorer/transaction/<transaction-hash>
+  
+  You can now query subgraphs using GraphQL. Use the querySubgraph tool with the following parameters:
+  - endpoint: The URL of the subgraph endpoint (e.g., "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3")
+  - query: A valid GraphQL query string
+  - variables (optional): Any variables needed for the query
+  
+  Example GraphQL queries:
+  1. Query Uniswap V3 pools:
+     query {
+       pools(first: 5, orderBy: volumeUSD, orderDirection: desc) {
+         id
+         token0 { symbol }
+         token1 { symbol }
+         volumeUSD
+       }
+     }
+  
+  2. Query token data:
+     query($tokenAddress: String!) {
+       token(id: $tokenAddress) {
+         symbol
+         name
+         decimals
+         totalSupply
+       }
+     }
   `;
 
   const result = streamText({
