@@ -1,4 +1,5 @@
 import { contractInteractor } from "./agentkit/action-providers/contract-interactor";
+import { SUBGRAPH_ENDPOINTS, graphQuerierProvider } from "./agentkit/action-providers/graph-querier";
 import { agentKitToTools } from "./agentkit/framework-extensions/ai-sdk";
 import { AgentKit, ViemWalletProvider, walletActionProvider } from "@coinbase/agentkit";
 import { tool } from "ai";
@@ -7,6 +8,8 @@ import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { foundry } from "viem/chains";
 import { z } from "zod";
+
+export { SUBGRAPH_ENDPOINTS };
 
 export async function createAgentKit() {
   const walletClient = createWalletClient({
@@ -18,7 +21,7 @@ export async function createAgentKit() {
 
   const agentKit = await AgentKit.from({
     walletProvider: viemWalletProvider,
-    actionProviders: [walletActionProvider(), contractInteractor(foundry.id)],
+    actionProviders: [walletActionProvider(), contractInteractor(foundry.id), graphQuerierProvider()],
   });
 
   return { agentKit, address: walletClient.account.address };
