@@ -44,11 +44,12 @@ export async function POST(req: Request) {
   {
     endpoint: "${uniswapEndpoint}",
     query: \`query {
-      pools(first: 5, orderBy: volumeUSD, orderDirection: desc) {
+      pools(first: 100, orderBy: createdAtTimestamp, orderDirection: desc) {
         id
         token0 { symbol }
         token1 { symbol }
         volumeUSD
+        createdAtTimestamp
       }
     }\`
   }
