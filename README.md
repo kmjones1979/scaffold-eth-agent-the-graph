@@ -270,3 +270,171 @@ When adding new subgraph integrations:
 2. Update the system prompt with example queries
 3. Add appropriate error handling
 4. Include TypeScript types for the response data
+
+## AgentKit Integration
+
+This project integrates Coinbase's AgentKit for enhanced blockchain interactions and AI-powered chat capabilities.
+
+### Chat Application
+
+The chat application provides a natural language interface for interacting with blockchain data and smart contracts. It combines:
+
+-   **OpenAI Integration**: Natural language processing for user queries
+-   **SIWE Authentication**: Secure Sign In With Ethereum
+-   **AgentKit Actions**: Blockchain interactions through predefined actions
+-   **GraphQL Queries**: Real-time blockchain data access
+
+### AgentKit Features
+
+1. **Action Providers**
+
+    - `GraphQuerierProvider`: Query blockchain data through The Graph
+    - `ContractInteractor`: Interact with smart contracts
+    - `WalletActionProvider`: Handle wallet operations
+
+2. **Tool Integration**
+
+    ```typescript
+    const agentKit = await AgentKit.from({
+        walletProvider: viemWalletProvider,
+        actionProviders: [
+            walletActionProvider(),
+            contractInteractor(foundry.id),
+            graphQuerierProvider(),
+        ],
+    });
+    ```
+
+3. **Chat Interface**
+    - Real-time streaming responses
+    - Transaction hash linking
+    - Error handling and recovery
+    - Context-aware responses
+
+### Chat Capabilities
+
+1. **Blockchain Queries**
+
+    - Query Uniswap pools and tokens
+    - Check ENS names and records
+    - Monitor AAVE lending positions
+    - Track Compound markets
+
+2. **Smart Contract Interactions**
+
+    - View contract states
+    - Execute contract functions
+    - Monitor transactions
+    - Track events
+
+3. **Natural Language Processing**
+    - Understand user intent
+    - Generate appropriate queries
+    - Format responses
+    - Handle errors gracefully
+
+### Example Chat Interactions
+
+1. **Querying Uniswap Pools**
+
+    ```
+    User: "Show me the top 5 Uniswap pools by volume"
+    AI: [Executes GraphQL query and formats response]
+    ```
+
+2. **Checking Token Data**
+
+    ```
+    User: "What's the total supply of USDC?"
+    AI: [Queries token data and presents formatted response]
+    ```
+
+3. **Contract Interactions**
+    ```
+    User: "What's the current price of ETH?"
+    AI: [Queries price feed contract and responds]
+    ```
+
+### Architecture
+
+1. **Frontend Components**
+
+    - Chat interface
+    - Message display
+    - Transaction links
+    - Error handling
+
+2. **Backend Services**
+
+    - OpenAI integration
+    - AgentKit actions
+    - GraphQL queries
+    - Authentication
+
+3. **Data Flow**
+    ```
+    User Query → OpenAI Processing → AgentKit Actions → Blockchain Data → Formatted Response
+    ```
+
+### Security Features
+
+1. **Authentication**
+
+    - SIWE (Sign In With Ethereum)
+    - Session management
+    - Request validation
+
+2. **Data Protection**
+
+    - API key security
+    - Private key management
+    - Response sanitization
+
+3. **Rate Limiting**
+    - Query throttling
+    - Response caching
+    - Error handling
+
+### Development Guidelines
+
+1. **Adding New Actions**
+
+    - Implement ActionProvider interface
+    - Add to AgentKit configuration
+    - Update system prompts
+    - Include error handling
+
+2. **Customizing Responses**
+
+    - Format data appropriately
+    - Include relevant links
+    - Handle edge cases
+    - Provide helpful context
+
+3. **Testing**
+    - Unit test actions
+    - Integration test flows
+    - End-to-end chat testing
+    - Error scenario testing
+
+### Best Practices
+
+1. **Query Optimization**
+
+    - Use pagination
+    - Limit result sets
+    - Cache when appropriate
+    - Handle timeouts
+
+2. **Error Handling**
+
+    - Graceful degradation
+    - Clear error messages
+    - Recovery suggestions
+    - Logging
+
+3. **User Experience**
+    - Clear responses
+    - Progress indicators
+    - Transaction links
+    - Helpful suggestions
