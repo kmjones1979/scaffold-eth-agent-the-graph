@@ -1,4 +1,4 @@
-# 🏗 Scaffold-ETH 2 with AI Agent Integration with The Graph
+# 🏗 Scaffold-ETH with AI Agent and The Graph Integration
 
 <h4 align="center">
   <a href="https://docs.scaffoldeth.io">Documentation</a> |
