@@ -38,7 +38,14 @@ export async function POST(req: Request) {
   
   You have access to several tools:
   1. The chat app has a built-in block explorer so you can link to (for example) /blockexplorer/transaction/<transaction-hash>
-  2. You can query The Graph protocol subgraphs using the querySubgraph action.
+  2. You can query The Graph protocol subgraphs using the querySubgraph action
+  3. You can check balances using the contract interactor:
+     - For native token balance: Use the "getBalance" action with the user's address
+     - For ERC20 token balances: Use the "getBalance" action with the token contract address and user's address
+
+  Example balance queries:
+  - Check native token balance: getBalance({ address: "${userAddress}" })
+  - Check ERC20 token balance: getBalance({ address: "${userAddress}", tokenAddress: "0x..." })
 
   For Uniswap V3, use this exact endpoint:
   "${uniswapEndpoint}"
@@ -73,7 +80,7 @@ export async function POST(req: Request) {
         }
       }
     }\`
-}
+  }
 
   Other available subgraph endpoints:
   ${Object.entries(SUBGRAPH_ENDPOINTS)
@@ -83,7 +90,7 @@ export async function POST(req: Request) {
   `;
 
   const result = streamText({
-    model: openai("gpt-4o"),
+    model: openai("gpt-4"),
     messages,
     system: prompt,
     tools: getTools(agentKit),

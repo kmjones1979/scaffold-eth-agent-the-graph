@@ -43,6 +43,65 @@ export function getTools(agentKit: AgentKit) {
         };
       },
     }),
+    getBalance: tool({
+      description: "Get the balance of an Ethereum address",
+      parameters: z.object({
+        address: z.string().describe("The Ethereum address to query"),
+        tokenAddress: z.string().optional().describe("Optional token address to query specific token balance"),
+      }),
+      execute: async ({ address, tokenAddress }) => {
+        try {
+          const actions = agentKit.getActions();
+
+          if (tokenAddress) {
+            // ERC20 balance check
+            const readContractAction = actions.find(action => action.name === "ContractInteractor_read-contract");
+            if (!readContractAction) {
+              throw new Error("Read contract action not found");
+            }
+
+            const result = await readContractAction.invoke({
+              address: tokenAddress,
+              abi: ["function balanceOf(address) view returns (uint256)"],
+              functionName: "balanceOf",
+              args: [address],
+            });
+            return {
+              address,
+              tokenAddress,
+              balance: result.toString(),
+              type: "ERC20",
+            };
+          } else {
+            // Native token balance check
+            const walletDetailsAction = actions.find(
+              action => action.name === "WalletActionProvider_get_wallet_details",
+            );
+            if (!walletDetailsAction) {
+              throw new Error("Wallet details action not found");
+            }
+
+            const result = await walletDetailsAction.invoke({ address });
+            // Parse the native balance from the response
+            const balanceMatch = result.match(/Native Balance: (\d+) WEI/);
+            if (!balanceMatch) {
+              throw new Error("Could not parse native balance from response");
+            }
+            const balance = balanceMatch[1];
+
+            return {
+              address,
+              balance,
+              type: "NATIVE",
+            };
+          }
+        } catch (error) {
+          return {
+            error: error instanceof Error ? error.message : "An unknown error occurred",
+          };
+        }
+      },
+    }),
   };
 }
 
