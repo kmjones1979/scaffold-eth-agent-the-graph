@@ -1,4 +1,4 @@
-# 🏗 Scaffold-ETH 2 with AI Agent Integration
+# 🏗 Scaffold-ETH 2 with AI Agent Integration with The Graph
 
 <h4 align="center">
   <a href="https://docs.scaffoldeth.io">Documentation</a> |
@@ -16,6 +16,8 @@
 -   🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components
 -   🔥 **Burner Wallet & Local Faucet**: Quickly test your application
 -   🔐 **Integration with Wallet Providers**: Connect to different wallet providers
+
+This is a fork of a build [Scaffold-ETH 2 Chat Agent Extension](https://github.com/azf20/chat-agent-extension) by [Adam Fuller](https://github.com/azf20) that showcases a basic static implementation of The Graph using AgentKit Action providers.
 
 ## Requirements
 
@@ -52,7 +54,7 @@ OPENAI_API_KEY=your-openai-api-key-here
 # NextAuth Secret (generate with: openssl rand -base64 32)
 NEXTAUTH_SECRET=your-nextauth-secret-here
 
-# Agent Private Key (generate with: openssl rand -hex 32)
+# Agent Private Key
 AGENT_PRIVATE_KEY=your-agent-private-key-here
 ```
 
@@ -290,12 +292,14 @@ The integration includes several pre-configured subgraph endpoints:
     - Create an account
     - Go to "My API Keys"
     - Create a new API key
+    - ⚠️ Use a development key with limited permissions
 
 2. **OPENAI_API_KEY**
 
     - Visit [OpenAI API Keys](https://platform.openai.com/api-keys)
     - Create an account or sign in
     - Create a new API key
+    - ⚠️ Set up usage limits to prevent unexpected charges
 
 3. **NEXTAUTH_SECRET**
 
@@ -305,23 +309,37 @@ The integration includes several pre-configured subgraph endpoints:
     openssl rand -base64 32
     ```
 
+    - ⚠️ Keep this secret secure and unique per environment
+
 4. **AGENT_PRIVATE_KEY**
-    - Generate a new private key or add your own (this can be done on command line for testing but it's recommended to do this inside a wallet or on a air-gapped device):
+    - ⚠️ **IMPORTANT**: This is for development only. Never use mainnet keys!
+    - For testing, generate a new private key:
     ```bash
     openssl rand -hex 32
     ```
     - Must be prefixed with "0x"
+    - ⚠️ Store minimal funds for testing
+    - ⚠️ Never commit this key to version control
 
 ### Security Best Practices
 
 -   Never commit `.env.local` to version control
 -   Keep private keys secure
--   Use a dedicated development key and not your mainnet keys for testing
--   Rotate keys regularly and don't store large amounts on the key
+-   Use dedicated development keys only
+-   Rotate keys regularly
+-   Store minimal funds in development keys
+-   Use air-gapped devices for key generation in production
+-   Implement rate limiting for API endpoints
+-   Monitor API usage and set up alerts
+-   Regular security audits recommended
 
-_THIS CODE IS NOT AUDITED AND IS NOT RECOMMENDED FOR PRODUCTION!_
+⚠️ **IMPORTANT SECURITY NOTICE**:
+This code is not audited and is intended for development and learning purposes only.
 
-_USE AT YOUR OWN RISK!_
+-   Do not use in production without a security audit
+-   Do not store significant funds in development keys
+-   Do not expose API keys or private keys
+-   Use at your own risk!
 
 ## Usage Examples
 
@@ -375,6 +393,45 @@ query {
     }
 }
 ```
+
+Example error response:
+
+```json
+{
+    "errors": [
+        {
+            "message": "Invalid API key",
+            "locations": [],
+            "path": [],
+            "extensions": {
+                "code": "UNAUTHORIZED"
+            }
+        }
+    ]
+}
+```
+
+### Rate Limiting and Best Practices
+
+1. **Query Optimization**
+
+    - Use pagination for large result sets
+    - Limit the number of fields requested
+    - Cache responses when appropriate
+    - Use variables for dynamic values
+
+2. **Error Handling**
+
+    - Always check for error responses
+    - Implement retry logic with backoff
+    - Log errors for debugging
+    - Provide user-friendly error messages
+
+3. **Performance**
+    - Monitor query execution time
+    - Use appropriate indexes
+    - Implement request batching
+    - Cache frequently accessed data
 
 ## Development Guidelines
 
