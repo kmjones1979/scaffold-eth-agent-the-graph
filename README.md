@@ -111,8 +111,6 @@ Visit `http://localhost:3000` to interact with your application.
     export class GraphQuerierProvider
         implements ActionProvider<WalletProvider>
     {
-        name = "graph-querier";
-
         // Pre-configured subgraph endpoints with API key management
         SUBGRAPH_ENDPOINTS = {
             UNISWAP_V3: () =>
@@ -120,6 +118,13 @@ Visit `http://localhost:3000` to interact with your application.
             AAVE_V3: () =>
                 `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${AAVE_V3_SUBGRAPH_ID}`,
         };
+
+        // Type-safe schema for GraphQL queries
+        graphQuerySchema = z.object({
+            endpoint: z.string().or(z.function().returns(z.string())),
+            query: z.string(),
+            variables: z.record(z.any()).optional(),
+        });
 
         // Main action for executing GraphQL queries
         getActions(walletProvider: WalletProvider) {
@@ -137,21 +142,25 @@ Visit `http://localhost:3000` to interact with your application.
     }
     ```
 
-    - Implements the AgentKit `ActionProvider` interface
-    - Manages subgraph endpoints and API keys
-    - Provides type-safe GraphQL query execution
-    - Handles error cases and response formatting
+    **Key Features:**
+
+    - Implements AgentKit's `ActionProvider` interface for seamless integration
+    - Manages subgraph endpoints with dynamic API key injection
+    - Provides type-safe GraphQL query execution using Zod schemas
+    - Handles both static and dynamic endpoint URLs
+    - Includes comprehensive error handling and response formatting
+    - Supports query variables for dynamic data fetching
 
 2. **Chat API Route** (`app/api/chat/route.ts`)
 
     ```typescript
     export async function POST(req: Request) {
-        // Authentication check
+        // Authentication check using SIWE
         const session = await getServerSession(
             siweAuthOptions({ chain: foundry })
         );
 
-        // Initialize AgentKit with providers
+        // Initialize AgentKit with all required providers
         const { agentKit, address } = await createAgentKit();
 
         // Configure system prompt with available tools and endpoints
@@ -161,7 +170,7 @@ Visit `http://localhost:3000` to interact with your application.
         Example queries...
       `;
 
-        // Stream responses using OpenAI
+        // Stream responses using OpenAI with AgentKit tools
         const result = streamText({
             model: openai("gpt-4"),
             messages,
@@ -171,23 +180,27 @@ Visit `http://localhost:3000` to interact with your application.
     }
     ```
 
-    - Handles chat requests and authentication
-    - Manages AgentKit initialization
-    - Configures system prompts with available tools
-    - Streams responses using OpenAI
-    - Integrates with SIWE for authentication
+    **Key Features:**
+
+    - Handles chat requests with SIWE authentication
+    - Initializes AgentKit with GraphQL and contract providers
+    - Configures system prompts with available tools and endpoints
+    - Streams responses using OpenAI's streaming API
+    - Integrates with Next.js API routes for serverless deployment
+    - Manages chat context and conversation history
+    - Provides real-time response streaming
 
 3. **Chat Interface** (`app/chat/page.tsx`)
 
     ```typescript
     export default function Chat() {
-        // Chat state management using useChat hook
+        // Chat state management with max steps limit
         const { messages, input, handleInputChange, handleSubmit, status } =
             useChat({
                 maxSteps: 10,
             });
 
-        // Message rendering with markdown support
+        // Message rendering with markdown and tool call support
         const renderMessage = (m: any) => {
             const textParts = m.parts.filter((p) => p.type === "text");
             const toolParts = m.parts.filter(
@@ -204,7 +217,7 @@ Visit `http://localhost:3000` to interact with your application.
             );
         };
 
-        // UI components for chat interface
+        // Responsive chat interface with auto-scroll
         return (
             <div className="flex flex-col w-full max-w-md mx-auto h-[600px]">
                 <div className="messages-container">
@@ -218,12 +231,48 @@ Visit `http://localhost:3000` to interact with your application.
     }
     ```
 
-    - Client-side chat interface implementation
-    - Real-time message streaming
-    - Markdown rendering for responses
-    - Tool call visualization
+    **Key Features:**
+
+    - Client-side chat interface with real-time updates
+    - Message streaming with markdown rendering
+    - Tool call visualization for GraphQL queries
     - Auto-scrolling message container
-    - Status indicators and input controls
+    - Status indicators for query progress
+    - Responsive design with mobile support
+    - Input handling with submission controls
+    - Error state management and display
+
+### Component Interaction
+
+1. **Data Flow Between Components**
+
+    ```
+    Chat Interface (page.tsx)
+    ↓ Sends user message
+    API Route (route.ts)
+    ↓ Processes with OpenAI
+    ↓ Initializes AgentKit
+    GraphQL Handler (graph-querier.ts)
+    ↓ Executes queries
+    ↓ Returns results
+    API Route
+    ↓ Streams response
+    Chat Interface
+    ↓ Renders result
+    ```
+
+2. **State Management**
+
+    - Chat state managed by `useChat` hook
+    - AgentKit state handled in API route
+    - GraphQL query state managed by provider
+    - Real-time updates through streaming
+
+3. **Error Handling Chain**
+    - UI errors caught in chat interface
+    - API errors handled in route handler
+    - GraphQL errors managed in query provider
+    - Comprehensive error propagation
 
 ### Data Flow
 
@@ -281,6 +330,180 @@ The integration includes several pre-configured subgraph endpoints:
   AAVE_V3: "https://gateway.thegraph.com/api/{api-key}/subgraphs/id/JCNWRypm7FYwV8fx5HhzZPSFaMxgkPuw4TnR3Gpi81zk"
 }
 ```
+
+### Adding New Subgraph Endpoints
+
+Here's a step-by-step guide to add a new subgraph endpoint (e.g., Compound Finance):
+
+1. **Add Subgraph ID Constant**
+
+    ```typescript
+    // In utils/chat/agentkit/action-providers/graph-querier.ts
+    const COMPOUND_V3_SUBGRAPH_ID =
+        "AwoxEZbiWLvv6e3QdvdMZw4WDURdGbvPfHmZRc8Dpfz9";
+    ```
+
+2. **Add Endpoint to SUBGRAPH_ENDPOINTS**
+
+    ```typescript
+    export const SUBGRAPH_ENDPOINTS: Record<string, string | EndpointGetter> = {
+        // ... existing endpoints ...
+        COMPOUND_V3: () => {
+            const apiKey = process.env.GRAPH_API_KEY;
+            if (!apiKey)
+                throw new Error(
+                    "GRAPH_API_KEY not found in environment variables"
+                );
+            return `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${COMPOUND_V3_SUBGRAPH_ID}`;
+        },
+    };
+    ```
+
+3. **Update System Prompt**
+
+    ```typescript
+    // In app/api/chat/route.ts
+    const compoundEndpoint =
+        typeof SUBGRAPH_ENDPOINTS.COMPOUND_V3 === "function"
+            ? SUBGRAPH_ENDPOINTS.COMPOUND_V3()
+            : SUBGRAPH_ENDPOINTS.COMPOUND_V3;
+
+    const prompt = `
+      // ... existing prompt content ...
+    
+      For Compound V3, use this exact endpoint:
+      "${compoundEndpoint}"
+    
+      Example GraphQL query for Compound V3:
+      {
+        endpoint: "${compoundEndpoint}",
+        query: \`query {
+          tokens(first: 5, orderBy: lastPriceBlockNumber, orderDirection: desc) {
+            id
+            name
+            symbol
+            decimals
+          }
+          rewardTokens(
+            first: 5
+            orderBy: token__lastPriceBlockNumber
+            orderDirection: desc
+          ) {
+            id
+            token {
+              id
+            }
+            type
+          }
+        }\`
+      }
+    `;
+    ```
+
+4. **Add Example Queries**
+
+    ```typescript
+    // In utils/chat/tools.ts
+    export const querySubgraph = {
+        // ... existing configuration ...
+        examples: [
+            // ... existing examples ...
+            {
+                name: "Compound V3 Tokens",
+                description: "Query Compound V3 token information",
+                query: `query {
+            tokens(first: 5, orderBy: lastPriceBlockNumber, orderDirection: desc) {
+              id
+              name
+              symbol
+              decimals
+            }
+            rewardTokens(
+              first: 5
+              orderBy: token__lastPriceBlockNumber
+              orderDirection: desc
+            ) {
+              id
+              token {
+                id
+              }
+              type
+            }
+          }`,
+                endpoint: "COMPOUND_V3",
+            },
+        ],
+    };
+    ```
+
+5. **Test the Integration**
+
+    ```typescript
+    // Test query in chat interface
+    User: "Show me the top 5 Compound V3 tokens"
+    AI: [Executes GraphQL query and formats response]
+    ```
+
+6. **Error Handling**
+
+    ```typescript
+    // In graph-querier.ts
+    invoke: async ({ endpoint, query, variables = {} }) => {
+        try {
+            const resolvedEndpoint =
+                typeof endpoint === "function" ? endpoint() : endpoint;
+
+            // Add specific error handling for Compound V3
+            if (resolvedEndpoint.includes(COMPOUND_V3_SUBGRAPH_ID)) {
+                // Add any Compound-specific error handling
+            }
+
+            const response = await fetch(resolvedEndpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query, variables }),
+            });
+
+            if (!response.ok)
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            return JSON.stringify(data);
+        } catch (error) {
+            return JSON.stringify({
+                error:
+                    error instanceof Error
+                        ? error.message
+                        : "An unknown error occurred",
+            });
+        }
+    };
+    ```
+
+7. **Documentation**
+
+    - Update README with new endpoint information
+    - Add example queries
+    - Document any specific error cases
+    - Include rate limiting considerations
+
+8. **Best Practices**
+
+    - Use pagination for large result sets
+    - Implement proper error handling
+    - Cache responses when appropriate
+    - Monitor API usage
+    - Test with various query parameters
+    - Validate response data
+
+9. **Testing Checklist**
+    - [ ] Verify API key access
+    - [ ] Test basic queries
+    - [ ] Check error handling
+    - [ ] Validate response format
+    - [ ] Test pagination
+    - [ ] Verify rate limiting
+    - [ ] Check caching behavior
+    - [ ] Test with different parameters
 
 ## Detailed Setup Guide
 
