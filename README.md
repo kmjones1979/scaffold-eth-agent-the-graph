@@ -1,21 +1,21 @@
-# 🏗 Scaffold-ETH 2
+# 🏗 Scaffold-ETH 2 with AI Agent Integration
 
 <h4 align="center">
   <a href="https://docs.scaffoldeth.io">Documentation</a> |
   <a href="https://scaffoldeth.io">Website</a>
 </h4>
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+🧪 An open-source toolkit for building decentralized applications (dapps) on the Ethereum blockchain, enhanced with AI-powered chat capabilities. Built using NextJS, RainbowKit, Foundry/Hardhat, Wagmi, Viem, TypeScript, and OpenAI.
 
-⚙️ Built using NextJS, RainbowKit, Foundry/Hardhat, Wagmi, Viem, and Typescript.
+## Features
 
--   ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
--   🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
--   🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
--   🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
--   🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
-
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+-   ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it
+-   🤖 **AI-Powered Chat Interface**: Natural language interaction with blockchain data and smart contracts
+-   📊 **GraphQL Integration**: Query blockchain data through The Graph protocol
+-   🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/)
+-   🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components
+-   🔥 **Burner Wallet & Local Faucet**: Quickly test your application
+-   🔐 **Integration with Wallet Providers**: Connect to different wallet providers
 
 ## Requirements
 
@@ -27,98 +27,78 @@ Before you begin, you need to install the following tools:
 
 ## Quickstart
 
-To get started with Scaffold-ETH 2, follow the steps below:
+1. Clone the repository:
 
-1. Setup the project
-
-```
+```bash
 git clone https://github.com/kmjones1979/scaffold-eth-agent-the-graph.git
+cd scaffold-eth-agent-the-graph
 ```
 
-2. Install dependencies
+2. Install dependencies:
 
-```
+```bash
 yarn install
 ```
 
-This command will install all the necessary packages and dependencies, so it might take a while.
+3. Set up environment variables in `.env.local`:
 
-> [!NOTE]
-> You can also initialize your project with one of our extensions to add specific features or starter-kits. Learn more in our [extensions documentation](https://docs.scaffoldeth.io/extensions/).
+```bash
+# The Graph Protocol API Key
+GRAPH_API_KEY=your-graph-api-key-here
 
-3. Run a local network in the first terminal:
+# OpenAI API Key
+OPENAI_API_KEY=your-openai-api-key-here
 
+# NextAuth Secret (generate with: openssl rand -base64 32)
+NEXTAUTH_SECRET=your-nextauth-secret-here
+
+# Agent Private Key (generate with: openssl rand -hex 32)
+AGENT_PRIVATE_KEY=your-agent-private-key-here
 ```
+
+4. Start a local network:
+
+```bash
 yarn chain
 ```
 
-This command starts a local Ethereum network that runs on your local machine and can be used for testing and development. Learn how to [customize your network configuration](https://docs.scaffoldeth.io/quick-start/environment#1-initialize-a-local-blockchain).
+5. Deploy test contracts:
 
-4. On a second terminal, deploy the test contract:
-
-```
+```bash
 yarn deploy
 ```
 
-This command deploys a test smart contract to the local network. You can find more information about how to customize your contract and deployment script in our [documentation](https://docs.scaffoldeth.io/quick-start/environment#2-deploy-your-smart-contract).
+6. Start the NextJS app:
 
-5. On a third terminal, start your NextJS app:
-
-```
+```bash
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+Visit `http://localhost:3000` to interact with your application.
 
-**What's next**:
+## Architecture
 
-Visit the [What's next section of our docs](https://docs.scaffoldeth.io/quick-start/environment#whats-next) to learn how to:
+### Core Components
 
--   Edit your smart contracts
--   Edit your deployment scripts
--   Customize your frontend
--   Edit the app config
--   Writing and running tests
--   [Setting up external services and API keys](https://docs.scaffoldeth.io/deploying/deploy-smart-contracts#configuration-of-third-party-services-for-production-grade-apps)
+1. **Chat Interface**
 
-## Documentation
+    - Natural language processing with OpenAI
+    - Real-time streaming responses
+    - Transaction hash linking
+    - Error handling and recovery
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn all the technical details and guides of Scaffold-ETH 2.
+2. **AgentKit Integration**
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
+    - Blockchain interactions through predefined actions
+    - Smart contract interactions
+    - Wallet operations
+    - GraphQL queries
 
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
-
-## GraphQL
-
-This project includes a powerful GraphQL integration for querying blockchain data through The Graph protocol. The integration is built using AgentKit and provides a seamless way to query various subgraphs.
-
-### Architecture
-
-The GraphQL integration consists of three main components:
-
-1. **GraphQuerierProvider** (`utils/chat/agentkit/action-providers/graph-querier.ts`)
-
-    - Implements the AgentKit `ActionProvider` interface
-    - Handles GraphQL queries to various subgraphs
-    - Manages API keys and endpoint configuration
-    - Provides error handling and response formatting
-
-2. **Chat Route** (`app/api/chat/route.ts`)
-
-    - Handles chat requests and responses
-    - Integrates with OpenAI for natural language processing
-    - Provides system prompts with GraphQL query examples
-    - Manages user authentication via SIWE (Sign In With Ethereum)
-
-3. **Tools Configuration** (`utils/chat/tools.ts`)
-    - Sets up AgentKit with necessary providers
-    - Configures wallet connections
-    - Exports GraphQL query tools
+3. **GraphQL Integration**
+    - Query blockchain data through The Graph
+    - Support for multiple subgraphs
+    - Real-time data access
+    - Error handling
 
 ### Available Subgraphs
 
@@ -127,41 +107,13 @@ The integration includes several pre-configured subgraph endpoints:
 ```typescript
 {
   UNISWAP_V3: "https://gateway.thegraph.com/api/{api-key}/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV",
-  AAVE_V3: "https://gateway.thegraph.com/api/{api-key}/subgraphs/id/C2zniPn45RnLDGzVeGZCx2Sw3GXrbc9gL4ZfL8B8Em2j"
+  AAVE_V3: "https://gateway.thegraph.com/api/{api-key}/subgraphs/id/JCNWRypm7FYwV8fx5HhzZPSFaMxgkPuw4TnR3Gpi81zk"
 }
 ```
 
-### Setup
+## Detailed Setup Guide
 
-1. Add your Graph API key to `.env.local`:
-
-    ```
-    GRAPH_API_KEY=your-api-key-here
-    ```
-
-2. The integration will automatically use the API key for authenticated endpoints like Uniswap V3.
-
-### Required Environment Variables
-
-The project requires several environment variables to be set in `.env.local`:
-
-```bash
-# The Graph Protocol API Key (required for Uniswap V3 and other protected subgraphs)
-GRAPH_API_KEY=your-graph-api-key-here
-
-# OpenAI API Key (required for chat functionality)
-OPENAI_API_KEY=your-openai-api-key-here
-
-# NextAuth Secret (required for SIWE authentication)
-# Generate a random string using: openssl rand -base64 32
-NEXTAUTH_SECRET=your-nextauth-secret-here
-
-# Agent Private Key (required for blockchain interactions)
-# Generate a new private key or use an existing one
-AGENT_PRIVATE_KEY=your-agent-private-key-here
-```
-
-#### How to Get These Keys
+### Environment Variables
 
 1. **GRAPH_API_KEY**
 
@@ -175,37 +127,58 @@ AGENT_PRIVATE_KEY=your-agent-private-key-here
     - Visit [OpenAI API Keys](https://platform.openai.com/api-keys)
     - Create an account or sign in
     - Create a new API key
-    - Note: Keep this key secure and never commit it to version control
 
 3. **NEXTAUTH_SECRET**
 
-    - Generate a random string using:
-        ```bash
-        openssl rand -base64 32
-        ```
-    - Or use any secure random string
-    - This is used to encrypt cookies and tokens
+    - Generate a random string:
+
+    ```bash
+    openssl rand -base64 32
+    ```
 
 4. **AGENT_PRIVATE_KEY**
-    - Generate a new private key using:
-        ```bash
-        openssl rand -hex 32
-        ```
-    - Or use an existing private key
+    - Generate a new private key:
+    ```bash
+    openssl rand -hex 32
+    ```
     - Must be prefixed with "0x"
-    - Example: `0x1234...`
 
-#### Security Notes
+### Security Best Practices
 
 -   Never commit `.env.local` to version control
--   Keep your private keys secure
+-   Keep private keys secure
 -   Rotate keys regularly
 -   Use different keys for development and production
 -   Consider using a secrets management service in production
 
-### Example Usage
+## Usage Examples
 
-You can query subgraphs through the chat interface. Here's an example query for Uniswap V3 pools:
+### Chat Interface
+
+1. **Querying Uniswap Pools**
+
+```
+User: "Show me the top 5 Uniswap pools by volume"
+AI: [Executes GraphQL query and formats response]
+```
+
+2. **Checking Token Data**
+
+```
+User: "What's the total supply of USDC?"
+AI: [Queries token data and presents formatted response]
+```
+
+3. **Contract Interactions**
+
+```
+User: "What's the current price of ETH?"
+AI: [Queries price feed contract and responds]
+```
+
+### GraphQL Queries
+
+Example query for Uniswap V3 pools:
 
 ```graphql
 query {
@@ -223,221 +196,69 @@ query {
 }
 ```
 
-### Features
+Example query for Aave V3 borrows:
 
--   **Authentication**: Secure access to protected subgraphs using API keys
--   **Error Handling**: Comprehensive error handling for failed queries
--   **Type Safety**: Full TypeScript support with Zod schema validation
--   **Flexible Endpoints**: Support for both static and dynamic endpoint URLs
--   **Response Formatting**: Consistent JSON response format
+```graphql
+query {
+    borrows(first: 100, orderBy: timestamp, orderDirection: desc) {
+        amount
+        amountUSD
+        asset {
+            name
+            symbol
+        }
+    }
+}
+```
 
-### Security
+## Development Guidelines
 
--   API keys are stored securely in environment variables
--   User authentication is required for all queries
--   Endpoints are validated before use
--   Error messages are sanitized before being returned
+### Adding New Actions
 
-### Best Practices
+1. Implement ActionProvider interface
+2. Add to AgentKit configuration
+3. Update system prompts
+4. Include error handling
 
-1. Always use the predefined endpoints from `SUBGRAPH_ENDPOINTS`
-2. Include proper error handling in your queries
-3. Use pagination for large result sets
-4. Consider rate limits when making multiple queries
-5. Cache responses when appropriate
+### Customizing Responses
 
-### Troubleshooting
+1. Format data appropriately
+2. Include relevant links
+3. Handle edge cases
+4. Provide helpful context
 
-Common issues and solutions:
+### Testing
+
+1. Unit test actions
+2. Integration test flows
+3. End-to-end chat testing
+4. Error scenario testing
+
+## Troubleshooting
+
+### Common Issues
 
 1. **API Key Errors**
 
-    - Ensure `GRAPH_API_KEY` is set in `.env.local`
-    - Verify the API key is valid and has sufficient credits
+    - Verify environment variables are set
+    - Check API key validity
+    - Ensure sufficient credits
 
 2. **Authentication Errors**
 
-    - Check that the user is properly signed in with SIWE
-    - Verify the session is valid
+    - Verify SIWE sign-in
+    - Check session validity
+    - Review NextAuth configuration
 
 3. **Query Errors**
-    - Validate GraphQL query syntax
-    - Check subgraph schema for correct field names
-    - Ensure variables are properly formatted
+    - Validate GraphQL syntax
+    - Check subgraph schema
+    - Verify variable formatting
 
-### Contributing
+## Contributing
 
-When adding new subgraph integrations:
+We welcome contributions! Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for guidelines.
 
-1. Add the endpoint to `SUBGRAPH_ENDPOINTS`
-2. Update the system prompt with example queries
-3. Add appropriate error handling
-4. Include TypeScript types for the response data
+## Documentation
 
-## AgentKit Integration
-
-This project integrates Coinbase's AgentKit for enhanced blockchain interactions and AI-powered chat capabilities.
-
-### Chat Application
-
-The chat application provides a natural language interface for interacting with blockchain data and smart contracts. It combines:
-
--   **OpenAI Integration**: Natural language processing for user queries
--   **SIWE Authentication**: Secure Sign In With Ethereum
--   **AgentKit Actions**: Blockchain interactions through predefined actions
--   **GraphQL Queries**: Real-time blockchain data access
-
-### AgentKit Features
-
-1. **Action Providers**
-
-    - `GraphQuerierProvider`: Query blockchain data through The Graph
-    - `ContractInteractor`: Interact with smart contracts
-    - `WalletActionProvider`: Handle wallet operations
-
-2. **Tool Integration**
-
-    ```typescript
-    const agentKit = await AgentKit.from({
-        walletProvider: viemWalletProvider,
-        actionProviders: [
-            walletActionProvider(),
-            contractInteractor(foundry.id),
-            graphQuerierProvider(),
-        ],
-    });
-    ```
-
-3. **Chat Interface**
-    - Real-time streaming responses
-    - Transaction hash linking
-    - Error handling and recovery
-    - Context-aware responses
-
-### Chat Capabilities
-
-1. **Blockchain Queries**
-
-    - Query Uniswap pools and tokens
-    - Check ENS names and records
-    - Monitor AAVE lending positions
-    - Track Compound markets
-
-2. **Smart Contract Interactions**
-
-    - View contract states
-    - Execute contract functions
-    - Monitor transactions
-    - Track events
-
-3. **Natural Language Processing**
-    - Understand user intent
-    - Generate appropriate queries
-    - Format responses
-    - Handle errors gracefully
-
-### Example Chat Interactions
-
-1. **Querying Uniswap Pools**
-
-    ```
-    User: "Show me the top 5 Uniswap pools by volume"
-    AI: [Executes GraphQL query and formats response]
-    ```
-
-2. **Checking Token Data**
-
-    ```
-    User: "What's the total supply of USDC?"
-    AI: [Queries token data and presents formatted response]
-    ```
-
-3. **Contract Interactions**
-    ```
-    User: "What's the current price of ETH?"
-    AI: [Queries price feed contract and responds]
-    ```
-
-### Architecture
-
-1. **Frontend Components**
-
-    - Chat interface
-    - Message display
-    - Transaction links
-    - Error handling
-
-2. **Backend Services**
-
-    - OpenAI integration
-    - AgentKit actions
-    - GraphQL queries
-    - Authentication
-
-3. **Data Flow**
-    ```
-    User Query → OpenAI Processing → AgentKit Actions → Blockchain Data → Formatted Response
-    ```
-
-### Security Features
-
-1. **Authentication**
-
-    - SIWE (Sign In With Ethereum)
-    - Session management
-    - Request validation
-
-2. **Data Protection**
-
-    - API key security
-    - Private key management
-    - Response sanitization
-
-3. **Rate Limiting**
-    - Query throttling
-    - Response caching
-    - Error handling
-
-### Development Guidelines
-
-1. **Adding New Actions**
-
-    - Implement ActionProvider interface
-    - Add to AgentKit configuration
-    - Update system prompts
-    - Include error handling
-
-2. **Customizing Responses**
-
-    - Format data appropriately
-    - Include relevant links
-    - Handle edge cases
-    - Provide helpful context
-
-3. **Testing**
-    - Unit test actions
-    - Integration test flows
-    - End-to-end chat testing
-    - Error scenario testing
-
-### Best Practices
-
-1. **Query Optimization**
-
-    - Use pagination
-    - Limit result sets
-    - Cache when appropriate
-    - Handle timeouts
-
-2. **Error Handling**
-
-    - Graceful degradation
-    - Clear error messages
-    - Recovery suggestions
-    - Logging
-
-3. **User Experience**
-    - Clear responses
-    - Progress indicators
-    - Transaction links
-    - Helpful suggestions
+For more detailed information, visit our [documentation](https://docs.scaffoldeth.io).
