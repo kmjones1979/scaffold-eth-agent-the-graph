@@ -2,6 +2,7 @@ import { ActionProvider, WalletProvider } from "@coinbase/agentkit";
 import { z } from "zod";
 
 const UNISWAP_V3_SUBGRAPH_ID = "5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV";
+const AAVE_V3_SUBGRAPH_ID = "JCNWRypm7FYwV8fx5HhzZPSFaMxgkPuw4TnR3Gpi81zk";
 
 type EndpointGetter = () => string;
 
@@ -11,10 +12,11 @@ export const SUBGRAPH_ENDPOINTS: Record<string, string | EndpointGetter> = {
     if (!apiKey) throw new Error("GRAPH_API_KEY not found in environment variables");
     return `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${UNISWAP_V3_SUBGRAPH_ID}`;
   },
-  AAVE_V3: "https://api.thegraph.com/subgraphs/name/aave/protocol-v3",
-  ENS: "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
-  COMPOUND_V3: "https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v3",
-  LENS: "https://api.thegraph.com/subgraphs/name/lens-protocol/lens",
+  AAVE_V3: () => {
+    const apiKey = process.env.GRAPH_API_KEY;
+    if (!apiKey) throw new Error("GRAPH_API_KEY not found in environment variables");
+    return `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${AAVE_V3_SUBGRAPH_ID}`;
+  },
 };
 
 const graphQuerySchema = z.object({

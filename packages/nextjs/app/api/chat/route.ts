@@ -25,6 +25,9 @@ export async function POST(req: Request) {
       ? SUBGRAPH_ENDPOINTS.UNISWAP_V3()
       : SUBGRAPH_ENDPOINTS.UNISWAP_V3;
 
+  const aaveEndpoint =
+    typeof SUBGRAPH_ENDPOINTS.AAVE_V3 === "function" ? SUBGRAPH_ENDPOINTS.AAVE_V3() : SUBGRAPH_ENDPOINTS.AAVE_V3;
+
   const prompt = `
   You are a helpful assistant, who can answer questions and make certain onchain interactions based on the user's request.
   The connected user's address is: ${userAddress}
@@ -53,6 +56,24 @@ export async function POST(req: Request) {
       }
     }\`
   }
+
+  For Aave V3, use this exact endpoint:
+  "${aaveEndpoint}"
+
+  Example GraphQL query for Aave V3:
+  {
+    endpoint: "${aaveEndpoint}",
+    query: \`query {
+      borrows(first: 100, orderBy: timestamp, orderDirection: desc) {
+        amount
+        amountUSD
+        asset {
+          name
+          symbol
+        }
+      }
+    }\`
+}
 
   Other available subgraph endpoints:
   ${Object.entries(SUBGRAPH_ENDPOINTS)
