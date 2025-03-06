@@ -137,7 +137,7 @@ The integration includes several pre-configured subgraph endpoints:
     ```
 
 4. **AGENT_PRIVATE_KEY**
-    - Generate a new private key:
+    - Generate a new private key or add your own (this can be done on command line for testing but it's recommended to do this inside a wallet or on a air-gapped device):
     ```bash
     openssl rand -hex 32
     ```
@@ -147,9 +147,12 @@ The integration includes several pre-configured subgraph endpoints:
 
 -   Never commit `.env.local` to version control
 -   Keep private keys secure
--   Rotate keys regularly
--   Use different keys for development and production
--   Consider using a secrets management service in production
+-   Use a dedicated development key and not your mainnet keys for testing
+-   Rotate keys regularly and don't store large amounts on the key
+
+_THIS CODE IS NOT AUDITED AND IS NOT RECOMMENDED FOR PRODUCTION!_
+
+_USE AT YOUR OWN RISK!_
 
 ## Usage Examples
 
@@ -162,18 +165,11 @@ User: "Show me the top 5 Uniswap pools by volume"
 AI: [Executes GraphQL query and formats response]
 ```
 
-2. **Checking Token Data**
+2. **Contract Interactions**
 
 ```
-User: "What's the total supply of USDC?"
-AI: [Queries token data and presents formatted response]
-```
-
-3. **Contract Interactions**
-
-```
-User: "What's the current price of ETH?"
-AI: [Queries price feed contract and responds]
+User: "What was the last amount borrowed on Aave?"
+AI: [Queries for the borrows and responds]
 ```
 
 ### GraphQL Queries
