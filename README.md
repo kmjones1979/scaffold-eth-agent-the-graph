@@ -100,6 +100,175 @@ Visit `http://localhost:3000` to interact with your application.
     - Real-time data access
     - Error handling
 
+### Key Files
+
+1. **GraphQL Query Handler** (`utils/chat/agentkit/action-providers/graph-querier.ts`)
+
+    ```typescript
+    // Core functionality for querying The Graph protocol
+    export class GraphQuerierProvider
+        implements ActionProvider<WalletProvider>
+    {
+        name = "graph-querier";
+
+        // Pre-configured subgraph endpoints with API key management
+        SUBGRAPH_ENDPOINTS = {
+            UNISWAP_V3: () =>
+                `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${UNISWAP_V3_SUBGRAPH_ID}`,
+            AAVE_V3: () =>
+                `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${AAVE_V3_SUBGRAPH_ID}`,
+        };
+
+        // Main action for executing GraphQL queries
+        getActions(walletProvider: WalletProvider) {
+            return [
+                {
+                    name: "querySubgraph",
+                    description: "Query a subgraph using GraphQL",
+                    schema: graphQuerySchema,
+                    invoke: async ({ endpoint, query, variables }) => {
+                        // Handles query execution and error management
+                    },
+                },
+            ];
+        }
+    }
+    ```
+
+    - Implements the AgentKit `ActionProvider` interface
+    - Manages subgraph endpoints and API keys
+    - Provides type-safe GraphQL query execution
+    - Handles error cases and response formatting
+
+2. **Chat API Route** (`app/api/chat/route.ts`)
+
+    ```typescript
+    export async function POST(req: Request) {
+        // Authentication check
+        const session = await getServerSession(
+            siweAuthOptions({ chain: foundry })
+        );
+
+        // Initialize AgentKit with providers
+        const { agentKit, address } = await createAgentKit();
+
+        // Configure system prompt with available tools and endpoints
+        const prompt = `
+        You are a helpful assistant...
+        Available endpoints: ${SUBGRAPH_ENDPOINTS}
+        Example queries...
+      `;
+
+        // Stream responses using OpenAI
+        const result = streamText({
+            model: openai("gpt-4"),
+            messages,
+            system: prompt,
+            tools: getTools(agentKit),
+        });
+    }
+    ```
+
+    - Handles chat requests and authentication
+    - Manages AgentKit initialization
+    - Configures system prompts with available tools
+    - Streams responses using OpenAI
+    - Integrates with SIWE for authentication
+
+3. **Chat Interface** (`app/chat/page.tsx`)
+
+    ```typescript
+    export default function Chat() {
+        // Chat state management using useChat hook
+        const { messages, input, handleInputChange, handleSubmit, status } =
+            useChat({
+                maxSteps: 10,
+            });
+
+        // Message rendering with markdown support
+        const renderMessage = (m: any) => {
+            const textParts = m.parts.filter((p) => p.type === "text");
+            const toolParts = m.parts.filter(
+                (p) => p.type === "tool-invocation"
+            );
+
+            return (
+                <>
+                    {textParts.map((part) => (
+                        <ReactMarkdown>{part.text}</ReactMarkdown>
+                    ))}
+                    <MessageToolCalls toolParts={toolParts} />
+                </>
+            );
+        };
+
+        // UI components for chat interface
+        return (
+            <div className="flex flex-col w-full max-w-md mx-auto h-[600px]">
+                <div className="messages-container">
+                    {messages.map((m) => (
+                        <div className="message">{renderMessage(m)}</div>
+                    ))}
+                </div>
+                <ChatInput onSubmit={handleSubmit} />
+            </div>
+        );
+    }
+    ```
+
+    - Client-side chat interface implementation
+    - Real-time message streaming
+    - Markdown rendering for responses
+    - Tool call visualization
+    - Auto-scrolling message container
+    - Status indicators and input controls
+
+### Data Flow
+
+1. **User Interaction**
+
+    - User types message in chat interface
+    - Message is sent to API route
+    - SIWE authentication is verified
+
+2. **Query Processing**
+
+    - OpenAI processes natural language
+    - AgentKit determines required actions
+    - GraphQL queries are constructed
+    - Subgraph endpoints are called
+
+3. **Response Generation**
+    - Data is formatted and processed
+    - Markdown is rendered
+    - Tool calls are displayed
+    - UI updates in real-time
+
+### Key Features
+
+1. **Type Safety**
+
+    - Zod schemas for query validation
+    - TypeScript interfaces for responses
+    - Runtime type checking
+
+2. **Error Handling**
+
+    - Graceful error recovery
+    - User-friendly error messages
+    - Request retry logic
+
+3. **Performance**
+
+    - Streaming responses
+    - Efficient message rendering
+    - Optimized re-renders
+
+4. **Security**
+    - SIWE authentication
+    - API key management
+    - Input sanitization
+
 ### Available Subgraphs
 
 The integration includes several pre-configured subgraph endpoints:
